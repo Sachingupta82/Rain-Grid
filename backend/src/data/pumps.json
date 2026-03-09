@@ -1,0 +1,18 @@
+[
+  {
+    "pump_id": "P1",
+    "type": "mobile",
+    "capacity_lps": 120,
+    "power_kw": 25,
+    "ward_id": "90",
+    "status": "available"
+  },
+  {
+    "pump_id": "P2",
+    "type": "mobile",
+    "capacity_lps": 150,
+    "power_kw": 30,
+    "ward_id": "10",
+    "status": "deployed"
+  }
+]
