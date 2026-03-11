@@ -5,14 +5,16 @@
     "capacity_lps": 120,
     "power_kw": 25,
     "ward_id": "90",
-    "status": "available"
+    "status": "deployed",
+    "assigned_engineer": "E21",
+    "location_grid": 4283
   },
   {
     "pump_id": "P2",
     "type": "mobile",
     "capacity_lps": 150,
     "power_kw": 30,
-    "ward_id": "10",
-    "status": "deployed"
+    "ward_id": "90",
+    "status": "allocated"
   }
 ]

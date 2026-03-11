@@ -1,51 +1,61 @@
 const fs = require("fs");
 const path = require("path");
+const axios = require("axios");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 /**
  * GET WARDS
- * Returns ward polygons
  */
 exports.getWards = async (req, res) => {
   try {
-    const filePath = path.join(__dirname, "../data/Delhi_Wards.geojson");
+
+    const filePath = path.join(
+      __dirname,
+      "../data/Delhi_Wards.geojson"
+    );
 
     const data = fs.readFileSync(filePath, "utf8");
     const wards = JSON.parse(data);
 
-    res.status(200).json({
+    res.json({
       type: "FeatureCollection",
       count: wards.features.length,
       data: wards.features
     });
 
   } catch (error) {
+
     res.status(500).json({
       message: "Error fetching wards",
       error: error.message
     });
+
   }
 };
 
 
 /**
  * GET ALL GRIDS
- * Returns flood risk grids
  */
 exports.getGrids = async (req, res) => {
+
   try {
 
-    const filePath = path.join(
+    const gridPath = path.join(
       __dirname,
       "../data/grids_with_risk.geojson"
     );
 
-    const data = fs.readFileSync(filePath, "utf8");
-    const grids = JSON.parse(data);
+    const gridData = JSON.parse(
+      fs.readFileSync(gridPath, "utf8")
+    );
 
-    res.status(200).json({
+    res.json({
       type: "FeatureCollection",
-      count: grids.features.length,
-      data: grids.features
+      count: gridData.features.length,
+      data: gridData.features
     });
 
   } catch (error) {
@@ -56,26 +66,29 @@ exports.getGrids = async (req, res) => {
     });
 
   }
+
 };
 
 
 /**
- * GET SINGLE GRID DETAILS
+ * GET GRID BY ID
  */
 exports.getGridById = async (req, res) => {
+
   try {
 
     const gridId = parseInt(req.params.gridId);
 
-    const filePath = path.join(
+    const gridPath = path.join(
       __dirname,
       "../data/grids_with_risk.geojson"
     );
 
-    const data = fs.readFileSync(filePath, "utf8");
-    const grids = JSON.parse(data);
+    const gridData = JSON.parse(
+      fs.readFileSync(gridPath, "utf8")
+    );
 
-    const grid = grids.features.find(
+    const grid = gridData.features.find(
       g => g.properties.grid_id === gridId
     );
 
@@ -85,20 +98,25 @@ exports.getGridById = async (req, res) => {
       });
     }
 
-    res.status(200).json(grid);
+    res.json(grid);
 
   } catch (error) {
 
     res.status(500).json({
-      message: "Error fetching grid details",
+      message: "Error fetching grid",
       error: error.message
     });
 
   }
+
 };
 
 
+/**
+ * GET WARD READINESS
+ */
 exports.getWardReadiness = async (req, res) => {
+
   try {
 
     const filePath = path.join(
@@ -112,7 +130,16 @@ exports.getWardReadiness = async (req, res) => {
       .split("\n")
       .slice(1)
       .map(row => {
-        const [ward_id, avg_risk, total_grids, high_risk_grids, readiness_score, status] = row.split(",");
+
+        const [
+          ward_id,
+          avg_risk,
+          total_grids,
+          high_risk_grids,
+          readiness_score,
+          status
+        ] = row.split(",");
+
         return {
           ward_id,
           avg_risk,
@@ -121,6 +148,7 @@ exports.getWardReadiness = async (req, res) => {
           readiness_score,
           status
         };
+
       });
 
     res.json(rows);
@@ -133,16 +161,61 @@ exports.getWardReadiness = async (req, res) => {
     });
 
   }
+
 };
 
+
+async function generateAICausalChain(data) {
+
+  try {
+
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash"
+    });
+
+    const prompt = `
+You are an urban flood risk analyst working for a city disaster command center.
+
+Analyze the following grid data and produce structured JSON containing:
+
+1. root_causes
+2. risk_analysis
+3. predicted_scenarios
+4. recommended_actions
+
+Grid Data:
+${JSON.stringify(data, null, 2)}
+
+Return ONLY JSON.
+`;
+
+    const result = await model.generateContent(prompt);
+
+    const response = await result.response;
+
+    return response.text();
+
+  } catch (error) {
+
+    return {
+      message: "AI analysis unavailable"
+    };
+
+  }
+
+}
+
+
+/**
+ * GRID INSIGHTS
+ */
 exports.getGridInsights = async (req, res) => {
+
   try {
 
     const gridId = parseInt(req.params.gridId);
 
-    /* ---------------------------
-       LOAD GRID DATA
-    ---------------------------- */
+    /* ---------------- GRID DATA ---------------- */
 
     const gridPath = path.join(
       __dirname,
@@ -165,9 +238,26 @@ exports.getGridInsights = async (req, res) => {
 
     const p = grid.properties;
 
-    /* ---------------------------
-       LOAD EVENT DATA
-    ---------------------------- */
+    /* ---------------- WATER SIMULATION ---------------- */
+
+    const waterPath = path.join(
+      __dirname,
+      "../data/grid_water_simulation.json"
+    );
+
+    let waterSimulation = null;
+
+    if (fs.existsSync(waterPath)) {
+
+      const waterData = JSON.parse(
+        fs.readFileSync(waterPath, "utf8")
+      );
+
+      waterSimulation = waterData[p.grid_id] || null;
+
+    }
+
+    /* ---------------- EVENTS ---------------- */
 
     const eventsPath = path.join(
       __dirname,
@@ -187,16 +277,117 @@ exports.getGridInsights = async (req, res) => {
       );
 
       if (gridEvents) {
+
         eventHistory = gridEvents.events.sort(
           (a, b) => new Date(a.date) - new Date(b.date)
         );
+
       }
 
     }
 
-    /* ---------------------------
-       ENVIRONMENTAL CAUSES
-    ---------------------------- */
+    /* ---------------- ENGINEER ---------------- */
+
+    const engineerPath = path.join(
+      __dirname,
+      "../data/ward_engineers.json"
+    );
+
+    let engineer = null;
+
+    if (fs.existsSync(engineerPath)) {
+
+      const engineers = JSON.parse(
+        fs.readFileSync(engineerPath, "utf8")
+      );
+
+      engineer = engineers.find(
+        e => e.ward_id === p.ward_id
+      );
+
+    }
+
+    /* ---------------- ML PREDICTION ---------------- */
+
+    let mlPrediction = null;
+
+    try {
+
+      const rainfall = parseFloat(req.query.rainfall || 120);
+
+      const mlResponse = await axios.post(
+        "http://localhost:8000/predict",
+        {
+          elevation: p.elevation,
+          slope: p.slope,
+          distance_to_drain: p.distance_to_drain,
+          drain_density: p.drain_density,
+          rainfall: rainfall,
+          drain_blockage: Math.min(eventHistory.length * 0.2, 1),
+          event_count: eventHistory.length
+        }
+      );
+
+      const prob = mlResponse.data.flood_probability || 0;
+
+      let riskLevel = "LOW";
+
+      if (prob > 0.7) riskLevel = "HIGH";
+      else if (prob > 0.4) riskLevel = "MEDIUM";
+
+      mlPrediction = {
+        flood_probability: prob,
+        risk_level: riskLevel
+      };
+
+    } catch (err) {
+
+      mlPrediction = {
+        error: "ML service unavailable"
+      };
+
+    }
+
+    const mlProb = mlPrediction?.flood_probability || 0;
+
+    /* ---------------- PUMP DATA ---------------- */
+
+    const pumpPath = path.join(
+      __dirname,
+      "../data/pumps.json"
+    );
+
+    let pumpRecommendation = [];
+
+    if (fs.existsSync(pumpPath)) {
+
+      const pumps = JSON.parse(
+        fs.readFileSync(pumpPath, "utf8")
+      );
+
+      const available = pumps.filter(
+        p => p.status === "available"
+      );
+
+      if (
+        (p.risk_level === "HIGH" || mlProb > 0.6) &&
+        available.length > 0
+      ) {
+
+        const pump = available[0];
+
+        pumpRecommendation.push({
+          pump_id: pump.pump_id,
+          capacity_lps: pump.capacity_lps,
+          power_kw: pump.power_kw,
+          reason: "High flood probability detected"
+        });
+
+      }
+
+    }
+
+    /* ---------------- EXISTING CAUSAL CHAIN ---------------- */
 
     let environmentalCauses = [];
 
@@ -209,10 +400,8 @@ exports.getGridInsights = async (req, res) => {
     if (p.distance_to_drain > 120)
       environmentalCauses.push("Limited drainage connectivity");
 
-
-    /* ---------------------------
-       EVENT CAUSES
-    ---------------------------- */
+    if (p.drain_density < 2)
+      environmentalCauses.push("Low drainage network density");
 
     let eventCauses = [];
 
@@ -221,7 +410,7 @@ exports.getGridInsights = async (req, res) => {
       if (e.type === "construction")
         eventCauses.push({
           date: e.date,
-          cause: "Construction activity may introduce debris into drains"
+          cause: "Construction debris may block drainage"
         });
 
       if (e.type === "road_digging")
@@ -244,27 +433,19 @@ exports.getGridInsights = async (req, res) => {
 
     });
 
-
-    /* ---------------------------
-       PREDICTIONS
-    ---------------------------- */
-
     let predictions = [];
 
     if (p.risk_level === "HIGH")
-      predictions.push(
-        "High probability of waterlogging during heavy rainfall"
-      );
+      predictions.push("Hydrology analysis indicates high waterlogging risk");
 
-    if (p.slope < 0.002 && p.distance_to_drain > 100)
-      predictions.push(
-        "Water likely to accumulate due to slow runoff"
-      );
+    if (mlProb > 0.7)
+      predictions.push("Severe flood probability predicted");
 
+    else if (mlProb > 0.4)
+      predictions.push("Moderate flooding probability predicted");
 
-    /* ---------------------------
-       ACTIONS
-    ---------------------------- */
+    if (waterSimulation?.risk === "HIGH")
+      predictions.push("Water simulation indicates flood cluster formation");
 
     let actions = [];
 
@@ -274,13 +455,96 @@ exports.getGridInsights = async (req, res) => {
     if (p.slope < 0.002)
       actions.push("Monitor runoff accumulation");
 
-    if (p.risk_level === "HIGH")
-      actions.push("Deploy mobile pumps during heavy rainfall");
+    if (eventHistory.length > 2)
+      actions.push("Inspect drains for debris due to nearby activities");
 
+    if (mlProb > 0.7)
+      actions.push("Deploy additional mobile pumps");
 
-    /* ---------------------------
-       FINAL RESPONSE
-    ---------------------------- */
+    if (waterSimulation?.risk === "HIGH")
+      actions.push("Deploy pumps immediately");
+
+    /* ---------------- AI CAUSAL ANALYSIS ---------------- */
+
+/* ---------------- AI CAUSAL ANALYSIS ---------------- */
+
+let aiAnalysis = null;
+
+try {
+
+  const model = genAI.getGenerativeModel({
+    model: "gemini-2.5-flash"
+  });
+
+  const prompt = `
+You are a flood intelligence system.
+
+Return ONLY JSON.
+
+Format:
+
+{
+"root_causes": ["..."],
+"risk_analysis": ["..."],
+"predicted_scenarios": ["..."],
+"recommended_actions": ["..."]
+}
+
+Maximum 3 items per section.
+
+GRID DATA:
+Elevation: ${p.elevation}
+Slope: ${p.slope}
+Drain density: ${p.drain_density}
+
+Events:
+${JSON.stringify(eventHistory)}
+
+Water risk: ${waterSimulation?.risk}
+`;
+
+  const result = await model.generateContent(prompt);
+
+  let text = result.response.text();
+
+  /* CLEAN MARKDOWN */
+
+  text = text
+    .replace(/```json/g, "")
+    .replace(/```/g, "")
+    .trim();
+
+  /* EXTRACT JSON BLOCK */
+
+  const start = text.indexOf("{");
+  const end = text.lastIndexOf("}");
+
+  if (start !== -1 && end !== -1) {
+
+    const jsonString = text.substring(start, end + 1);
+
+    aiAnalysis = JSON.parse(jsonString);
+
+  } else {
+
+    throw new Error("JSON not found");
+
+  }
+
+} catch (error) {
+
+  console.log("AI parsing failed:", error.message);
+
+  aiAnalysis = {
+    root_causes: ["Low terrain slope"],
+    risk_analysis: ["Localized water accumulation possible"],
+    predicted_scenarios: ["Short-term waterlogging during rainfall"],
+    recommended_actions: ["Inspect drainage near recent activities"]
+  };
+
+}
+
+    /* ---------------- RESPONSE ---------------- */
 
     res.json({
 
@@ -291,13 +555,22 @@ exports.getGridInsights = async (req, res) => {
       terrain_factors: {
         elevation: p.elevation,
         slope: p.slope,
-        distance_to_drain: p.distance_to_drain
+        distance_to_drain: p.distance_to_drain,
+        drain_density: p.drain_density
       },
 
       risk: {
         score: p.risk_score,
         level: p.risk_level
       },
+
+      ml_prediction: mlPrediction,
+
+      water_simulation: waterSimulation,
+
+      responsible_engineer: engineer,
+
+      pump_recommendation: pumpRecommendation,
 
       timeline: eventHistory,
 
@@ -306,21 +579,28 @@ exports.getGridInsights = async (req, res) => {
         event_causes: eventCauses,
         predictions,
         actions
-      }
+      },
+
+      ai_causal_chain: aiAnalysis
 
     });
 
   } catch (error) {
 
     res.status(500).json({
-      message: "Error generating causal chain",
+      message: "Error generating grid insights",
       error: error.message
     });
 
   }
+
 };
 
+/**
+ * HOTSPOTS
+ */
 exports.getHotspots = async (req, res) => {
+
   try {
 
     const filePath = path.join(
@@ -332,7 +612,9 @@ exports.getHotspots = async (req, res) => {
     const grids = JSON.parse(data);
 
     const sorted = grids.features
-      .sort((a, b) => b.properties.risk_score - a.properties.risk_score)
+      .sort((a, b) =>
+        b.properties.risk_score - a.properties.risk_score
+      )
       .slice(0, 2500);
 
     res.json({
@@ -348,4 +630,5 @@ exports.getHotspots = async (req, res) => {
     });
 
   }
+
 };
