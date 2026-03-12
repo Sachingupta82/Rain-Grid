@@ -1,20 +1,342 @@
 [
   {
-    "pump_id": "P1",
-    "type": "mobile",
-    "capacity_lps": 120,
-    "power_kw": 25,
-    "ward_id": "90",
-    "status": "deployed",
-    "assigned_engineer": "E21",
-    "location_grid": 4283
+    "pump_id": "P001",
+    "type": "permanent",
+    "capacity_lps": 250,
+    "power_kw": 40,
+    "ward_id": "1",
+    "status": "available",
+    "location_grid": 101
   },
   {
-    "pump_id": "P2",
+    "pump_id": "P002",
+    "type": "permanent",
+    "capacity_lps": 260,
+    "power_kw": 42,
+    "ward_id": "1",
+    "status": "available",
+    "location_grid": 102
+  },
+  {
+    "pump_id": "P003",
+    "type": "permanent",
+    "capacity_lps": 240,
+    "power_kw": 38,
+    "ward_id": "2",
+    "status": "available",
+    "location_grid": 201
+  },
+  {
+    "pump_id": "P004",
+    "type": "permanent",
+    "capacity_lps": 255,
+    "power_kw": 41,
+    "ward_id": "2",
+    "status": "available",
+    "location_grid": 202
+  },
+  {
+    "pump_id": "P005",
+    "type": "permanent",
+    "capacity_lps": 260,
+    "power_kw": 43,
+    "ward_id": "3",
+    "status": "available",
+    "location_grid": 301
+  },
+  {
+    "pump_id": "P006",
+    "type": "permanent",
+    "capacity_lps": 245,
+    "power_kw": 39,
+    "ward_id": "3",
+    "status": "available",
+    "location_grid": 302
+  },
+  {
+    "pump_id": "P007",
+    "type": "permanent",
+    "capacity_lps": 260,
+    "power_kw": 44,
+    "ward_id": "4",
+    "status": "available",
+    "location_grid": 401
+  },
+  {
+    "pump_id": "P008",
+    "type": "permanent",
+    "capacity_lps": 250,
+    "power_kw": 40,
+    "ward_id": "4",
+    "status": "available",
+    "location_grid": 402
+  },
+  {
+    "pump_id": "P009",
+    "type": "permanent",
+    "capacity_lps": 255,
+    "power_kw": 41,
+    "ward_id": "5",
+    "status": "available",
+    "location_grid": 501
+  },
+  {
+    "pump_id": "P010",
+    "type": "permanent",
+    "capacity_lps": 245,
+    "power_kw": 39,
+    "ward_id": "5",
+    "status": "available",
+    "location_grid": 502
+  },
+  {
+    "pump_id": "P011",
+    "type": "permanent",
+    "capacity_lps": 250,
+    "power_kw": 40,
+    "ward_id": "6",
+    "status": "available",
+    "location_grid": 601
+  },
+  {
+    "pump_id": "P012",
+    "type": "permanent",
+    "capacity_lps": 260,
+    "power_kw": 42,
+    "ward_id": "6",
+    "status": "available",
+    "location_grid": 602
+  },
+  {
+    "pump_id": "P013",
+    "type": "permanent",
+    "capacity_lps": 240,
+    "power_kw": 38,
+    "ward_id": "7",
+    "status": "available",
+    "location_grid": 701
+  },
+  {
+    "pump_id": "P014",
+    "type": "permanent",
+    "capacity_lps": 255,
+    "power_kw": 41,
+    "ward_id": "7",
+    "status": "available",
+    "location_grid": 702
+  },
+  {
+    "pump_id": "P015",
+    "type": "permanent",
+    "capacity_lps": 250,
+    "power_kw": 40,
+    "ward_id": "8",
+    "status": "available",
+    "location_grid": 801
+  },
+  {
+    "pump_id": "P016",
+    "type": "permanent",
+    "capacity_lps": 245,
+    "power_kw": 39,
+    "ward_id": "8",
+    "status": "available",
+    "location_grid": 802
+  },
+  {
+    "pump_id": "P017",
+    "type": "permanent",
+    "capacity_lps": 260,
+    "power_kw": 43,
+    "ward_id": "9",
+    "status": "available",
+    "location_grid": 901
+  },
+  {
+    "pump_id": "P018",
+    "type": "permanent",
+    "capacity_lps": 255,
+    "power_kw": 41,
+    "ward_id": "9",
+    "status": "available",
+    "location_grid": 902
+  },
+  {
+    "pump_id": "P019",
+    "type": "permanent",
+    "capacity_lps": 245,
+    "power_kw": 39,
+    "ward_id": "10",
+    "status": "allocated",
+    "location_grid": 1001
+  },
+  {
+    "pump_id": "P020",
+    "type": "permanent",
+    "capacity_lps": 260,
+    "power_kw": 42,
+    "ward_id": "10",
+    "status": "available",
+    "location_grid": 1002
+  },
+  {
+    "pump_id": "M021",
     "type": "mobile",
     "capacity_lps": 150,
     "power_kw": 30,
-    "ward_id": "90",
-    "status": "allocated"
+    "ward_id": null,
+    "status": "available"
+  },
+  {
+    "pump_id": "M022",
+    "type": "mobile",
+    "capacity_lps": 160,
+    "power_kw": 32,
+    "ward_id": null,
+    "status": "available"
+  },
+  {
+    "pump_id": "M023",
+    "type": "mobile",
+    "capacity_lps": 140,
+    "power_kw": 28,
+    "ward_id": null,
+    "status": "available"
+  },
+  {
+    "pump_id": "M024",
+    "type": "mobile",
+    "capacity_lps": 155,
+    "power_kw": 31,
+    "ward_id": null,
+    "status": "available"
+  },
+  {
+    "pump_id": "M025",
+    "type": "mobile",
+    "capacity_lps": 150,
+    "power_kw": 30,
+    "ward_id": null,
+    "status": "available"
+  },
+  {
+    "pump_id": "M026",
+    "type": "mobile",
+    "capacity_lps": 165,
+    "power_kw": 33,
+    "ward_id": null,
+    "status": "available"
+  },
+  {
+    "pump_id": "M027",
+    "type": "mobile",
+    "capacity_lps": 145,
+    "power_kw": 29,
+    "ward_id": null,
+    "status": "available"
+  },
+  {
+    "pump_id": "M028",
+    "type": "mobile",
+    "capacity_lps": 155,
+    "power_kw": 31,
+    "ward_id": null,
+    "status": "available"
+  },
+  {
+    "pump_id": "M029",
+    "type": "mobile",
+    "capacity_lps": 150,
+    "power_kw": 30,
+    "ward_id": null,
+    "status": "available"
+  },
+  {
+    "pump_id": "M030",
+    "type": "mobile",
+    "capacity_lps": 160,
+    "power_kw": 32,
+    "ward_id": null,
+    "status": "available"
+  },
+  {
+    "pump_id": "M031",
+    "type": "mobile",
+    "capacity_lps": 150,
+    "power_kw": 30,
+    "ward_id": null,
+    "status": "available"
+  },
+  {
+    "pump_id": "M032",
+    "type": "mobile",
+    "capacity_lps": 165,
+    "power_kw": 34,
+    "ward_id": null,
+    "status": "available"
+  },
+  {
+    "pump_id": "M033",
+    "type": "mobile",
+    "capacity_lps": 145,
+    "power_kw": 29,
+    "ward_id": null,
+    "status": "available"
+  },
+  {
+    "pump_id": "M034",
+    "type": "mobile",
+    "capacity_lps": 155,
+    "power_kw": 31,
+    "ward_id": null,
+    "status": "available"
+  },
+  {
+    "pump_id": "M035",
+    "type": "mobile",
+    "capacity_lps": 150,
+    "power_kw": 30,
+    "ward_id": null,
+    "status": "available"
+  },
+  {
+    "pump_id": "M036",
+    "type": "mobile",
+    "capacity_lps": 160,
+    "power_kw": 32,
+    "ward_id": null,
+    "status": "available"
+  },
+  {
+    "pump_id": "M037",
+    "type": "mobile",
+    "capacity_lps": 150,
+    "power_kw": 30,
+    "ward_id": null,
+    "status": "available"
+  },
+  {
+    "pump_id": "M038",
+    "type": "mobile",
+    "capacity_lps": 165,
+    "power_kw": 34,
+    "ward_id": null,
+    "status": "available"
+  },
+  {
+    "pump_id": "M039",
+    "type": "mobile",
+    "capacity_lps": 145,
+    "power_kw": 29,
+    "ward_id": null,
+    "status": "available"
+  },
+  {
+    "pump_id": "M040",
+    "type": "mobile",
+    "capacity_lps": 155,
+    "power_kw": 31,
+    "ward_id": null,
+    "status": "available"
   }
 ]

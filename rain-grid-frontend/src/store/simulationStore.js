@@ -1,11 +1,9 @@
 import { create } from "zustand"
 
-export const useSimulationStore = create((set)=>({
-
+export const useSimulationStore = create((set) => ({
   simulationResult: null,
-
-  setSimulationResult: (data)=>set({
-    simulationResult: data
-  })
-
+  isRunning: false,
+  setSimulationResult: (result) => set({ simulationResult: result, isRunning: false }),
+  setRunning: (val) => set({ isRunning: val }),
+  clearSimulation: () => set({ simulationResult: null, isRunning: false })
 }))

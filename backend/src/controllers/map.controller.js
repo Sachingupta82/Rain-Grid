@@ -253,7 +253,11 @@ exports.getGridInsights = async (req, res) => {
         fs.readFileSync(waterPath, "utf8")
       );
 
-      waterSimulation = waterData[p.grid_id] || null;
+      const raw = waterData[p.grid_id] || null;
+waterSimulation = raw ? {
+  ...raw,
+  depth_cm: raw.depth_cm ?? (raw.water_level != null ? +(raw.water_level * 100).toFixed(1) : null)
+} : null;
 
     }
 
